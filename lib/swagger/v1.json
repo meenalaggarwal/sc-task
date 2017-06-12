@@ -1,0 +1,207 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "SC Task API",
+    "description": "SC Task API",
+    "version": "1.0"
+  },
+  "produces": ["application/json"],
+  "host": "localhost:5000",
+  "basePath": "/",
+  "paths": {
+    "/users/login": {
+      "post": {
+        "x-swagger-router-controller": "users",
+        "operationId": "loginUser",
+        "tags": ["Authentication"],
+        "description": "Provides user authentication",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User login request body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "200": {
+            "description": "Successful Authentication Response",
+            "schema": {
+              "$ref": "#/definitions/UserResponse"
+            }
+          }
+        }
+      }
+    },
+    "/jsonpatch": {
+      "post": {
+        "x-swagger-router-controller": "routes",
+        "operationId": "applyJsonPatch",
+        "tags": ["Jsonpatch"],
+        "description": "Apply Json patch to a json object",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Json patch document and object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JsonPatchRequest"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authentication token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Invalid Authorization"
+          },
+          "200": {
+            "description": "Json object applied with specified document"
+          }
+        }
+      }
+    },
+    "/thumbnail": {
+      "post": {
+        "x-swagger-router-controller": "routes",
+        "operationId": "createThumbnail",
+        "tags": ["Thumbnail"],
+        "description": "Create thumbnail of 50*50 of an image",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Image path",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ThumbnailRequest"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authentication token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Invalid Authorization"
+          },
+          "200": {
+            "description": "Thumbnail of 50*50 pixels",
+            "schema": {
+              "$ref": "#/definitions/ThumbnailResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserRequest": {
+      "required": ["username", "password"],
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UserResponse": {
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string"
+        }
+      }
+    },
+    "JsonPatchRequest": {
+      "required": ["document", "patch"],
+      "properties": {
+        "document": {
+          "type": "object"
+        },
+        "patch": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Patch"
+          }
+        }
+      }
+    },
+    "Patch": {
+      "required": ["op", "path"],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": ["add", "remove", "replace", "move", "copy", "test"]
+        },
+        "path": {
+          "type": "string",
+          "description": "Slash separated format"
+        },
+        "from": {
+          "type": "string",
+          "description": "Required for operations copy, replace"
+        },
+        "value": {
+          "type": "string",
+          "description": "Required for operations add, replace, test"
+        }
+      }
+    },
+    "ThumbnailRequest": {
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "ThumbnailResponse": {
+      "required": ["width", "height", "data"],
+      "properties": {
+        "width": {
+          "type": "integer"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/definitions/ThumbnailResponseData"
+        }
+      }
+    },
+    "ThumbnailResponseData": {
+      "required": ["type"] ,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Buffer response for a Thumbnail"
+        }
+      }
+    }
+  }
+}
